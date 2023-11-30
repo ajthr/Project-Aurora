@@ -14,8 +14,9 @@ func NewRouter() *chi.Mux {
 	router.Use(middleware.StripSlashes)
 	router.Use(httprate.LimitByIP(100, 1*time.Minute))
 
-	// route handlers
-	router.HandleFunc("/", nil)
+	// mount subroutes
+	router.Mount("/", loginRouter())
+	router.Mount("/me", managementRouter())
 
 	return router
 }
