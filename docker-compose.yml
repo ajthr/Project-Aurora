@@ -5,7 +5,9 @@ services:
   identity-service:
     container_name: identity-service
     build:
-      context: identity-verifier
+      context: identity-service
+    environment:
+      - JWT_SECRET=${JWT_SECRET}
     networks:
       - default
     ports:

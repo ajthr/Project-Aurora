@@ -9,5 +9,5 @@ RUN CGO_ENABLED=0 GOOS=linux go build -a -installsuffix cgo -o build/identity-se
 # run project on alpine linux
 FROM alpine
 RUN apk add --no-cache ca-certificates && update-ca-certificates
-COPY --from=builder /usr/local/go/src/identity-verifier/build/identity-service /identity-service
+COPY --from=builder /usr/local/go/src/identity-service/build/identity-service /identity-service
 ENTRYPOINT ["/identity-service"]
