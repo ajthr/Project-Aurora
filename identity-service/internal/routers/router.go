@@ -24,6 +24,7 @@ func NewRouter() *chi.Mux {
 	// mount subroutes
 	router.Mount("/", AuthRouter())
 	router.Mount("/me", AccountManagementRouter())
+	router.Mount("/verify-token", IdentityVerficationRouter())
 
 	return router
 }
