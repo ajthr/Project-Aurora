@@ -22,8 +22,8 @@ func NewRouter() *chi.Mux {
 	router.MethodNotAllowed(handlers.MethodNotAllowed)
 
 	// mount subroutes
-	router.Mount("/", AuthRouter())
-	router.Mount("/me", AccountManagementRouter())
+	router.Mount("/auth", AuthRouter())
+	router.Mount("/user", AccountManagementRouter())
 	router.Mount("/verify-token", IdentityVerficationRouter())
 
 	return router

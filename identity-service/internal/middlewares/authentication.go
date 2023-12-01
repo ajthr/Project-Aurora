@@ -29,7 +29,7 @@ func Authenticator(config config.JWTConfig) func(http.Handler) http.Handler {
 						userId, ok := claims["user_id"].(string)
 						if ok && userId != "" {
 							w.Header().Set("X-Authenticated-User-ID", userId)
-							next.ServeHTTP(w, r)
+							return
 						}
 					}
 				}
