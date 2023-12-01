@@ -1,0 +1,6 @@
+FROM golang:1.21.4-alpine3.17
+
+COPY go.mod /usr/local/go/src/identity-service/
+WORKDIR /usr/local/go/src/identity-service
+RUN go mod download
+COPY . /usr/local/go/src/identity-service
