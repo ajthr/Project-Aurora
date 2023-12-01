@@ -1,6 +1,7 @@
 package routers
 
 import (
+	"identity-service/internal/handlers"
 	"time"
 
 	"github.com/go-chi/chi/v5"
@@ -12,11 +13,17 @@ func NewRouter() *chi.Mux {
 	router := chi.NewRouter()
 
 	router.Use(middleware.StripSlashes)
-	router.Use(httprate.LimitByIP(100, 1*time.Minute))
+	router.Use(httprate.Limit(
+		25,
+		1*time.Second,
+		httprate.WithLimitHandler(handlers.TooManyRequests)))
+
+	router.NotFound(handlers.NotFound)
+	router.MethodNotAllowed(handlers.MethodNotAllowed)
 
 	// mount subroutes
-	router.Mount("/", loginRouter())
-	router.Mount("/me", managementRouter())
+	router.Mount("/", AuthRouter())
+	router.Mount("/me", AccountManagementRouter())
 
 	return router
 }

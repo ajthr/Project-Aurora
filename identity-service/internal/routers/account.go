@@ -8,7 +8,7 @@ import (
 	"github.com/go-chi/chi/v5"
 )
 
-func managementRouter() *chi.Mux {
+func AccountManagementRouter() *chi.Mux {
 
 	JWTConfig := config.NewJWTConfig()
 	router := chi.NewRouter()

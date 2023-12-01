@@ -6,7 +6,7 @@ import (
 	"github.com/go-chi/chi/v5"
 )
 
-func loginRouter() *chi.Mux {
+func AuthRouter() *chi.Mux {
 	router := chi.NewRouter()
 
 	// route handlers
