@@ -1,21 +1,35 @@
 package handlers
 
 import (
+	"database/sql"
 	"net/http"
+
+	"identity-service/internal/database"
 )
 
-func SignIn(w http.ResponseWriter, r *http.Request) {
+type AuthHandler struct {
+	store *database.AuthStore
+}
+
+func NewAuthHandler(conn *sql.DB) *AuthHandler {
+	authStore := database.NewAuthStore(conn)
+	return &AuthHandler{
+		store: authStore,
+	}
+}
+
+func (h *AuthHandler) SignIn(w http.ResponseWriter, r *http.Request) {
 	w.WriteHeader(http.StatusOK)
 }
 
-func SignUp(w http.ResponseWriter, r *http.Request) {
+func (h *AuthHandler) SignUp(w http.ResponseWriter, r *http.Request) {
 	w.WriteHeader(http.StatusOK)
 }
 
-func GoogleSignIn(w http.ResponseWriter, r *http.Request) {
+func (h *AuthHandler) GoogleSignIn(w http.ResponseWriter, r *http.Request) {
 	w.WriteHeader(http.StatusOK)
 }
 
-func ResetPassword(w http.ResponseWriter, r *http.Request) {
+func (h *AuthHandler) ResetPassword(w http.ResponseWriter, r *http.Request) {
 	w.WriteHeader(http.StatusOK)
 }

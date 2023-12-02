@@ -8,7 +8,6 @@ import (
 )
 
 func main() {
-
 	router := routers.NewRouter()
 
 	log.Println("Ready to receive requests.")

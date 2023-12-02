@@ -1,18 +1,21 @@
 package routers
 
 import (
+	"identity-service/internal/config"
 	"identity-service/internal/handlers"
 
 	"github.com/go-chi/chi/v5"
 )
 
-func AccountManagementRouter() *chi.Mux {
+func AccountManagementRouter(dbConfig *config.DBConfig) *chi.Mux {
 
 	router := chi.NewRouter()
 
-	// route handlers
-	router.Post("/change-mail", handlers.ChangeMail)
-	router.Post("/refresh-token", handlers.RefreshToken)
+	// account handler
+	accountHandler := handlers.NewAccountHandler(dbConfig.DB)
+
+	router.Post("/change-mail", accountHandler.ChangeMail)
+	router.Post("/refresh-token", accountHandler.RefreshToken)
 
 	return router
 }

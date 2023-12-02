@@ -6,7 +6,8 @@ require (
 	github.com/go-chi/chi/v5 v5.0.10
 	github.com/go-chi/httprate v0.7.4
 	github.com/golang-jwt/jwt/v5 v5.1.0
-    github.com/stretchr/testify v1.8.4
+	github.com/stretchr/testify v1.8.4
+	github.com/lib/pq v1.10.9
 )
 
 require (

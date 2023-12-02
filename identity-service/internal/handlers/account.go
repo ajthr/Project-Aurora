@@ -1,13 +1,26 @@
 package handlers
 
 import (
+	"database/sql"
+	"identity-service/internal/database"
 	"net/http"
 )
 
-func ChangeMail(w http.ResponseWriter, r *http.Request) {
+type AccountHandler struct {
+	store *database.AccountStore
+}
+
+func NewAccountHandler(conn *sql.DB) *AccountHandler {
+	accountStore := database.NewAccountStore(conn)
+	return &AccountHandler{
+		store: accountStore,
+	}
+}
+
+func (h *AccountHandler) ChangeMail(w http.ResponseWriter, r *http.Request) {
 	w.WriteHeader(http.StatusOK)
 }
 
-func RefreshToken(w http.ResponseWriter, r *http.Request) {
+func (h *AccountHandler) RefreshToken(w http.ResponseWriter, r *http.Request) {
 	w.WriteHeader(http.StatusOK)
 }
