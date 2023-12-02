@@ -3,12 +3,39 @@ package config
 import (
 	"database/sql"
 	"fmt"
+	"log"
 
 	_ "github.com/lib/pq"
 )
 
 type DBConfig struct {
 	DB *sql.DB
+}
+
+func initDatabase(db *sql.DB) {
+	initScript := `
+		CREATE TABLE IF NOT EXISTS users (
+			id					serial			PRIMARY KEY,
+			name				varchar(128),
+			email				varchar(255)	UNIQUE,
+			is_signup_complete	boolean,
+			user_created_at		timestamp
+		);
+
+		CREATE TABLE IF NOT EXISTS otp (
+			id					serial			PRIMARY KEY,
+			user_id				serial,
+			otp					varchar(16),
+			expiration			timestamp
+		);
+	`
+
+	_, err := db.Exec(initScript)
+
+	if err != nil {
+		log.Panic("WARN cannot run init script", err)
+	}
+
 }
 
 func NewDBConfig(host, port, user, password, dbname string) (*DBConfig, error) {
@@ -21,6 +48,11 @@ func NewDBConfig(host, port, user, password, dbname string) (*DBConfig, error) {
 		dbname)
 
 	db, err := sql.Open("postgres", connection)
+
+	// initialise database with required tables on successful connection
+	if err == nil {
+		initDatabase(db)
+	}
 
 	return &DBConfig{
 		DB: db,
