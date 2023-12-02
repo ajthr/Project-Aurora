@@ -23,10 +23,11 @@ var (
 
 func NewRouter() *chi.Mux {
 
+	// create and get database connection
 	dbConfig, err := config.NewDBConfig(host, port, user, password, dbname)
 
 	if err != nil {
-		log.Fatal("Cannot connect to database", err)
+		log.Fatal("ERROR cannot connect to database", err)
 	}
 
 	router := chi.NewRouter()

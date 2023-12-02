@@ -18,18 +18,17 @@ func NewAuthHandler(conn *sql.DB) *AuthHandler {
 	}
 }
 
+// function to signin and create user if not exists
 func (h *AuthHandler) SignIn(w http.ResponseWriter, r *http.Request) {
 	w.WriteHeader(http.StatusOK)
 }
 
-func (h *AuthHandler) SignUp(w http.ResponseWriter, r *http.Request) {
-	w.WriteHeader(http.StatusOK)
-}
-
+// function to signin and signup with google auth
 func (h *AuthHandler) GoogleSignIn(w http.ResponseWriter, r *http.Request) {
 	w.WriteHeader(http.StatusOK)
 }
 
-func (h *AuthHandler) ResetPassword(w http.ResponseWriter, r *http.Request) {
+// function to validate otp for signin and signup
+func (h *AuthHandler) ValidateOtp(w http.ResponseWriter, r *http.Request) {
 	w.WriteHeader(http.StatusOK)
 }

@@ -14,9 +14,8 @@ func AuthRouter(dbConfig *config.DBConfig) *chi.Mux {
 	authHandler := handlers.NewAuthHandler(dbConfig.DB)
 
 	router.Post("/signin", authHandler.SignIn)
-	router.Post("/signup", authHandler.SignUp)
+	router.Post("/validate-otp", authHandler.ValidateOtp)
 	router.Post("/google-signin", authHandler.GoogleSignIn)
-	router.Post("/reset-password", authHandler.ResetPassword)
 
 	return router
 }
