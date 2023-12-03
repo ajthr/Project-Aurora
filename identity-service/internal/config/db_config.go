@@ -24,7 +24,7 @@ func initDatabase(db *sql.DB) {
 
 		CREATE TABLE IF NOT EXISTS otp (
 			id					serial			PRIMARY KEY,
-			user_id				serial,
+			user_id				integer,
 			otp					varchar(16),
 			expiration			timestamp
 		);

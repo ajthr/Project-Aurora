@@ -1,7 +1,10 @@
 package models
 
+import "time"
+
 type OTP struct {
-	UserId     int64
+	Id         int
+	UserId     int
 	Value      string
-	Expiration string
+	Expiration time.Time
 }
