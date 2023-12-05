@@ -42,18 +42,30 @@ func (s *AuthStore) CreateUser(user *models.User) error {
 	return err
 }
 
-func (s *AuthStore) FindOtpByUserId(userId int) (*models.OTP, error) {
+func (s *AuthStore) UpdateSignUpStatus(email string) error {
+	query := `UPDATE users SET is_signup_complete = true WHERE email = $1`
+	_, err := s.db.Exec(query, email)
+	return err
+}
+
+func (s *AuthStore) FindOtpByEmail(email string) (*models.OTP, error) {
 	var otp models.OTP
-	query := `SELECT * FROM otp WHERE user_id = $1`
-	row := s.db.QueryRow(query, userId)
-	if err := row.Scan(&otp.Id, &otp.UserId, &otp.Value, &otp.Expiration); err != nil {
+	query := `SELECT * FROM otp WHERE email = $1`
+	row := s.db.QueryRow(query, email)
+	if err := row.Scan(&otp.Id, &otp.Email, &otp.Value, &otp.Expiration); err != nil {
 		return &otp, err
 	}
 	return &otp, nil
 }
 
+func (s *AuthStore) DeleteOtp(email string) error {
+	query := `DELETE FROM otp WHERE email = $1`
+	_, err := s.db.Exec(query, email)
+	return err
+}
+
 func (s *AuthStore) CreateOtp(otp *models.OTP) error {
-	query := `INSERT INTO otp (user_id, otp, expiration) VALUES ($1, $2, $3)`
-	_, err := s.db.Exec(query, otp.UserId, otp.Value, otp.Expiration)
+	query := `INSERT INTO otp (email, otp, expiration) VALUES ($1, $2, $3)`
+	_, err := s.db.Exec(query, otp.Email, otp.Value, otp.Expiration)
 	return err
 }

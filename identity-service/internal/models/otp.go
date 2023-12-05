@@ -4,7 +4,7 @@ import "time"
 
 type OTP struct {
 	Id         int
-	UserId     int
+	Email      string
 	Value      string
 	Expiration time.Time
 }
