@@ -2,7 +2,6 @@ package config
 
 import (
 	"context"
-	"os"
 
 	"google.golang.org/api/idtoken"
 )
@@ -17,9 +16,9 @@ type GoogleAuthClient struct {
 	Claims   *GoogleClaims
 }
 
-func NewGoogleAuthClient() *GoogleAuthClient {
+func NewGoogleAuthClient(googleClientId string) *GoogleAuthClient {
 	return &GoogleAuthClient{
-		ClientId: os.Getenv("GOOGLE_CLIENT_ID"),
+		ClientId: googleClientId,
 		Claims:   &GoogleClaims{},
 	}
 }

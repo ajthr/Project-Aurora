@@ -7,13 +7,14 @@ import (
 	"github.com/go-chi/chi/v5"
 )
 
-func AuthRouter(dbConfig *config.DBConfig) *chi.Mux {
+func AuthRouter(dbConfig *config.DBConfig, googleClient *config.GoogleAuthClient, mailConfig *config.MailConfig, jwtConfig *config.JWTConfig) *chi.Mux {
 	router := chi.NewRouter()
 
 	// auth handler
-	authHandler := handlers.NewAuthHandler(dbConfig.DB)
+	authHandler := handlers.NewAuthHandler(dbConfig.DB, googleClient, mailConfig, jwtConfig)
 
 	router.Post("/signin", authHandler.SignIn)
+	router.Post("/signup", authHandler.SignUp)
 	router.Post("/validate-otp", authHandler.ValidateOtp)
 	router.Post("/google-signin", authHandler.GoogleSignIn)
 

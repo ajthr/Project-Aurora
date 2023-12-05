@@ -1,8 +1,6 @@
 package routers
 
 import (
-	"log"
-	"os"
 	"time"
 
 	"identity-service/internal/config"
@@ -13,23 +11,7 @@ import (
 	"github.com/go-chi/httprate"
 )
 
-var (
-	host     = os.Getenv("DB_HOST")
-	port     = os.Getenv("DB_PORT")
-	user     = os.Getenv("DB_USER")
-	password = os.Getenv("DB_PASSWORD")
-	dbname   = os.Getenv("DB_NAME")
-)
-
-func NewRouter() *chi.Mux {
-
-	// create and get database connection
-	dbConfig, err := config.NewDBConfig(host, port, user, password, dbname)
-
-	if err != nil {
-		log.Fatal("ERROR cannot connect to database", err)
-	}
-
+func NewRouter(dbConfig *config.DBConfig, jwtConfig *config.JWTConfig, googleClient *config.GoogleAuthClient, mailClient *config.MailConfig) *chi.Mux {
 	router := chi.NewRouter()
 
 	router.Use(middleware.StripSlashes)
@@ -42,9 +24,9 @@ func NewRouter() *chi.Mux {
 	router.MethodNotAllowed(handlers.MethodNotAllowed)
 
 	// mount subroutes
-	router.Mount("/auth", AuthRouter(dbConfig))
+	router.Mount("/auth", AuthRouter(dbConfig, googleClient, mailClient, jwtConfig))
 	router.Mount("/user", AccountManagementRouter(dbConfig))
-	router.Mount("/verify-token", IdentityVerficationRouter())
+	router.Mount("/verify-token", IdentityVerficationRouter(jwtConfig))
 
 	return router
 }

@@ -47,7 +47,8 @@ func createJwtTokenWithoutClaims(userId string) string {
 // function to test authenticator middleware
 func AuthenticatorMiddlewareResponse(userId string, token string) *http.Response {
 	// create config for authenticator
-	config := config.NewJWTConfig()
+	key := os.Getenv("JWT_SECRET")
+	config := config.NewJWTConfig(key)
 
 	// mock handler fn that returns 200 once the request reaches it
 	handler := http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
@@ -58,7 +59,7 @@ func AuthenticatorMiddlewareResponse(userId string, token string) *http.Response
 	request := httptest.NewRequest(http.MethodGet, "/", nil)
 	request.Header.Add("Authorization", "Bearer "+token)
 
-	next := Authenticator(*config)(handler)
+	next := Authenticator(config)(handler)
 	next.ServeHTTP(recorder, request)
 
 	return recorder.Result()

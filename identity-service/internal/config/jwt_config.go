@@ -1,8 +1,6 @@
 package config
 
 import (
-	"os"
-
 	"github.com/golang-jwt/jwt/v5"
 )
 
@@ -11,9 +9,9 @@ type JWTConfig struct {
 	TokenParser *jwt.Parser
 }
 
-func NewJWTConfig() *JWTConfig {
+func NewJWTConfig(secretKey string) *JWTConfig {
 	return &JWTConfig{
-		SecretKey:   []byte(os.Getenv("JWT_SECRET")),
+		SecretKey:   []byte(secretKey),
 		TokenParser: jwt.NewParser(),
 	}
 }

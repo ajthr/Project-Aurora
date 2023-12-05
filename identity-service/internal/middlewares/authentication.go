@@ -11,7 +11,7 @@ import (
 )
 
 // jwt authenticator middleware
-func Authenticator(config config.JWTConfig) func(http.Handler) http.Handler {
+func Authenticator(config *config.JWTConfig) func(http.Handler) http.Handler {
 	return func(next http.Handler) http.Handler {
 		return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 			tokenString := utils.ExtractBearerToken(r.Header.Get("Authorization"))

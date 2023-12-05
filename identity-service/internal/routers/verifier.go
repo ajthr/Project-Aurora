@@ -7,12 +7,11 @@ import (
 	"github.com/go-chi/chi/v5"
 )
 
-func IdentityVerficationRouter() *chi.Mux {
+func IdentityVerficationRouter(jwtConfig *config.JWTConfig) *chi.Mux {
 
-	JWTConfig := config.NewJWTConfig()
 	router := chi.NewRouter()
 
-	router.Use(middlewares.Authenticator(*JWTConfig))
+	router.Use(middlewares.Authenticator(jwtConfig))
 
 	// route handlers
 	router.HandleFunc("/", nil)
