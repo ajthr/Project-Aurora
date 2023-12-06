@@ -3,6 +3,7 @@ package handlers
 import (
 	"database/sql"
 	"encoding/json"
+	"log"
 	"math/rand"
 	"net/http"
 	"strconv"
@@ -51,12 +52,14 @@ func (h *AuthHandler) SignIn(w http.ResponseWriter, r *http.Request) {
 				return
 			}
 		} else {
+			log.Println(err.Error())
 			http.Error(w, err.Error(), http.StatusInternalServerError)
 			return
 		}
 	}
 
 	if err = h.store.DeleteOtp(request.Email); err != nil {
+		log.Println(err.Error())
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return
 	}
@@ -70,12 +73,14 @@ func (h *AuthHandler) SignIn(w http.ResponseWriter, r *http.Request) {
 	}
 
 	if err = h.store.CreateOtp(otp); err != nil {
+		log.Println(err.Error())
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return
 	}
 
 	mailData := &models.OTPMailData{OTP: otpValue}
 	if err = h.mailClient.SendOtpEmail(request.Email, mailData); err != nil {
+		log.Println(err.Error())
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return
 	}

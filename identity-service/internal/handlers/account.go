@@ -17,6 +17,10 @@ func NewAccountHandler(conn *sql.DB) *AccountHandler {
 	}
 }
 
+func (h *AuthHandler) UpdateUser(w http.ResponseWriter, r *http.Request) {
+	w.WriteHeader(http.StatusOK)
+}
+
 func (h *AccountHandler) ChangeMail(w http.ResponseWriter, r *http.Request) {
 	w.WriteHeader(http.StatusOK)
 }
