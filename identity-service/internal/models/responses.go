@@ -2,5 +2,6 @@ package models
 
 // jwt token response
 type JWTTokenResponse struct {
-	Token string
+	Token            string
+	IsSignupComplete bool
 }

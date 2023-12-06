@@ -14,7 +14,6 @@ func AuthRouter(dbConfig *config.DBConfig, googleClient *config.GoogleAuthClient
 	authHandler := handlers.NewAuthHandler(dbConfig.DB, googleClient, mailConfig, jwtConfig)
 
 	router.Post("/signin", authHandler.SignIn)
-	router.Post("/signup", authHandler.SignUp)
 	router.Post("/validate-otp", authHandler.ValidateOtp)
 	router.Post("/google-signin", authHandler.GoogleSignIn)
 

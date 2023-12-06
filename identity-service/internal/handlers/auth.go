@@ -30,61 +30,6 @@ func NewAuthHandler(conn *sql.DB, googleClient *config.GoogleAuthClient, mailCli
 	}
 }
 
-// function to signin and create user if not exists
-func (h *AuthHandler) SignUp(w http.ResponseWriter, r *http.Request) {
-	var request models.SignUpRequest
-	var err error
-
-	if err = json.NewDecoder(r.Body).Decode(&request); err != nil {
-		http.Error(w, err.Error(), http.StatusBadRequest)
-		return
-	}
-
-	if _, err = h.store.FindUserByEmail(request.Email); err != nil {
-		if err == sql.ErrNoRows {
-			user := &models.User{
-				Name:  request.Name,
-				Email: request.Email,
-			}
-			if err = h.store.CreateUser(user); err != nil {
-				http.Error(w, err.Error(), http.StatusBadRequest)
-				return
-			}
-
-			if err = h.store.DeleteOtp(request.Email); err != nil {
-				http.Error(w, err.Error(), http.StatusInternalServerError)
-				return
-			}
-
-			otpValue := strconv.Itoa(rand.Intn(900000) + 100000)
-
-			otp := &models.OTP{
-				Email:      request.Email,
-				Value:      otpValue,
-				Expiration: time.Now().Add(time.Minute * 5),
-			}
-
-			if err = h.store.CreateOtp(otp); err != nil {
-				http.Error(w, err.Error(), http.StatusInternalServerError)
-				return
-			}
-
-			mailData := &models.OTPMailData{OTP: otpValue}
-			if err = h.mailClient.SendOtpEmail(request.Email, mailData); err != nil {
-				http.Error(w, err.Error(), http.StatusInternalServerError)
-				return
-			}
-			return
-		} else {
-			http.Error(w, err.Error(), http.StatusInternalServerError)
-			return
-		}
-	}
-
-	http.Error(w, "Existing User", http.StatusConflict)
-	return
-}
-
 func (h *AuthHandler) SignIn(w http.ResponseWriter, r *http.Request) {
 	var request models.SignInRequest
 	var err error
@@ -96,7 +41,15 @@ func (h *AuthHandler) SignIn(w http.ResponseWriter, r *http.Request) {
 
 	if _, err = h.store.FindUserByEmail(request.Email); err != nil {
 		if err == sql.ErrNoRows {
-			http.Error(w, err.Error(), http.StatusNotFound)
+			user := &models.User{
+				Name:             request.Name,
+				Email:            request.Email,
+				IsSignupComplete: false,
+			}
+			if _, err = h.store.CreateUser(user); err != nil {
+				http.Error(w, err.Error(), http.StatusBadRequest)
+				return
+			}
 		} else {
 			http.Error(w, err.Error(), http.StatusInternalServerError)
 			return
@@ -132,6 +85,9 @@ func (h *AuthHandler) SignIn(w http.ResponseWriter, r *http.Request) {
 func (h *AuthHandler) GoogleSignIn(w http.ResponseWriter, r *http.Request) {
 
 	var request models.GoogleSigninRequest
+	var user *models.User
+	var token string
+	var response []byte
 	var err error
 
 	if err = json.NewDecoder(r.Body).Decode(&request); err != nil {
@@ -144,41 +100,35 @@ func (h *AuthHandler) GoogleSignIn(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	if _, err = h.store.FindUserByEmail(h.googleClient.Claims.Email); err != nil {
+	if user, err = h.store.FindUserByEmail(h.googleClient.Claims.Email); err != nil {
 		if err == sql.ErrNoRows {
 			user := &models.User{
-				Name:  h.googleClient.Claims.Name,
-				Email: h.googleClient.Claims.Email,
+				Name:             h.googleClient.Claims.Name,
+				Email:            h.googleClient.Claims.Email,
+				IsSignupComplete: true,
 			}
-			if err = h.store.CreateUser(user); err != nil {
+			id, err := h.store.CreateUser(user)
+			if err != nil {
 				http.Error(w, err.Error(), http.StatusBadRequest)
 				return
 			}
-			if err = h.store.DeleteOtp(user.Email); err != nil {
-				http.Error(w, err.Error(), http.StatusInternalServerError)
-				return
-			}
-
-			otpValue := strconv.Itoa(rand.Intn(900000) + 100000)
-
-			otp := &models.OTP{
-				Email:      user.Email,
-				Value:      otpValue,
-				Expiration: time.Now().Add(time.Minute * 5),
-			}
-
-			if err = h.store.CreateOtp(otp); err != nil {
-				http.Error(w, err.Error(), http.StatusInternalServerError)
-				return
-			}
-
-			mailData := &models.OTPMailData{OTP: otpValue}
-			if err = h.mailClient.SendOtpEmail(user.Email, mailData); err != nil {
-				http.Error(w, err.Error(), http.StatusInternalServerError)
-				return
-			}
+			user.Id = id
 		} else {
 			http.Error(w, err.Error(), http.StatusInternalServerError)
+			return
+		}
+	}
+
+	token, err = h.jwtConfig.CreateToken(user.Id)
+	if err == nil {
+		response, err = json.Marshal(&models.JWTTokenResponse{
+			Token:            token,
+			IsSignupComplete: user.IsSignupComplete,
+		})
+		if err == nil {
+			h.store.DeleteOtp(h.googleClient.Claims.Email)
+			w.Header().Set("Content-Type", "application/json")
+			w.Write(response)
 			return
 		}
 	}
@@ -211,16 +161,17 @@ func (h *AuthHandler) ValidateOtp(w http.ResponseWriter, r *http.Request) {
 
 	if otp.Value == request.OTP && time.Now().Before(otp.Expiration) {
 		if user, err = h.store.FindUserByEmail(request.Email); err == nil {
-			if err = h.store.UpdateSignUpStatus(user.Email); err == nil {
-				token, err = h.jwtConfig.CreateToken(user.Id)
+			token, err = h.jwtConfig.CreateToken(user.Id)
+			if err == nil {
+				response, err = json.Marshal(&models.JWTTokenResponse{
+					Token:            token,
+					IsSignupComplete: user.IsSignupComplete,
+				})
 				if err == nil {
-					response, err = json.Marshal(&models.JWTTokenResponse{Token: token})
-					if err == nil {
-						h.store.DeleteOtp(request.Email)
-						w.Header().Set("Content-Type", "application/json")
-						w.Write(response)
-						return
-					}
+					h.store.DeleteOtp(request.Email)
+					w.Header().Set("Content-Type", "application/json")
+					w.Write(response)
+					return
 				}
 			}
 		}

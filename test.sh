@@ -12,5 +12,5 @@ do
     docker build -t $IMAGE_NAME -f ./$IMAGE/Dockerfile.test ./$IMAGE
 
     # Run the Docker container
-    docker run -v /var/run/docker.sock.raw:/var/run/docker.sock -it --rm --env-file=./.env $IMAGE_NAME sh -c "go test -v ./..."
+    docker run -it --rm -v /var/run/docker.sock:/var/run/docker.sock --env-file=./.env $IMAGE_NAME sh -c "go test ./..."
 done
