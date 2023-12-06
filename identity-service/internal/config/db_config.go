@@ -16,7 +16,7 @@ func initDatabase(db *sql.DB) {
 	initScript := `
 		CREATE TABLE IF NOT EXISTS users (
 			id					serial			PRIMARY KEY,
-			name				varchar(128),
+			name				varchar(128)	NOT NULL 		DEFAULT '',
 			email				varchar(255)	UNIQUE,
 			is_signup_complete	boolean,
 			user_created_at		timestamp
@@ -35,7 +35,6 @@ func initDatabase(db *sql.DB) {
 	if err != nil {
 		log.Panic("WARN cannot run init script", err)
 	}
-
 }
 
 func NewDBConfig(host, port, user, password, dbname string) (*DBConfig, error) {
